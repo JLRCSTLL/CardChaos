@@ -9,6 +9,7 @@ import type {
   ServerToClientEvents,
 } from '@card-chaos/shared';
 import { newRequestId } from './requestId';
+import { resolveGameServerUrl } from './gameServerUrl';
 type SavedSession = { code: string; playerId: string; token: string };
 const SESSION_KEY = 'card-chaos-session-v1';
 export function readSession(): SavedSession | null {
@@ -97,7 +98,10 @@ export function useGame() {
     [send],
   );
   useEffect(() => {
-    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io({ autoConnect: false });
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+      resolveGameServerUrl(import.meta.env.VITE_GAME_SERVER_URL),
+      { autoConnect: false },
+    );
     socketRef.current = socket;
     socket.on('connect', () => {
       setConnected(true);

@@ -373,16 +373,49 @@ describe('real Socket.IO multiplayer acceptance', () => {
     }
     expect(limited).toBe(true);
   });
-  it('rejects unauthorized WebSocket browser origins', async () => {
-    const socket = io(url, {
-      transports: ['websocket'],
-      reconnection: false,
-      extraHeaders: { Origin: 'https://unrelated.example' },
-    });
-    const error = await new Promise<Error>((resolve) => socket.once('connect_error', resolve));
-    expect(error).toBeTruthy();
-    socket.disconnect();
-  });
+  it.each(['websocket', 'polling'])(
+    'accepts the configured Vercel origin over %s and shares rooms across transports',
+    async (transport) => {
+      const origin = 'https://cardchaos.vercel.app';
+      await server.close();
+      server = createGameServer({ origins: [origin], rateLimits: false });
+      url = `http://127.0.0.1:${await server.listen()}`;
+
+      const handshake = await fetch(`${url}/socket.io/?EIO=4&transport=polling`, {
+        headers: { Origin: origin },
+      });
+      expect(handshake.status).toBe(200);
+      expect(handshake.headers.get('access-control-allow-origin')).toBe(origin);
+      expect(await handshake.text()).toMatch(/^0\{"sid":/);
+
+      const host = await connect({ transports: [transport], extraHeaders: { Origin: origin } });
+      await ok(host, 'room:create', { profile: { nickname: 'Vercel host', color: 'violet' } });
+      const friend = await connect({
+        transports: [transport === 'websocket' ? 'polling' : 'websocket'],
+        extraHeaders: { Origin: origin },
+      });
+      await ok(friend, 'room:join', {
+        code: host.session!.code,
+        profile: { nickname: 'Vercel friend', color: 'lime' },
+      });
+      await until(() => host.view?.players.length === 2 && friend.view?.players.length === 2);
+      expect(host.view!.players).toEqual(friend.view!.players);
+    },
+  );
+  it.each(['websocket', 'polling'])(
+    'rejects unauthorized browser origins over %s',
+    async (transport) => {
+      const socket = io(url, {
+        transports: [transport],
+        reconnection: false,
+        extraHeaders: { Origin: 'https://unrelated.example' },
+      });
+      clients.push({ socket });
+      const error = await new Promise<Error>((resolve) => socket.once('connect_error', resolve));
+      expect(error).toBeTruthy();
+      socket.disconnect();
+    },
+  );
   it('serves the production frontend and health check with security headers and supports polling fallback', async () => {
     const health = await fetch(`${url}/api/health`);
     expect(health.status).toBe(200);

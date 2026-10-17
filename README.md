@@ -106,10 +106,11 @@ packages/
 tests/                   Rules, real Socket.IO integration, client helpers
 scripts/build.mjs        Production server bundle
 examples/custom-deck.json
-docs/DEPLOYMENT.md        Render and Railway setup
+docs/DEPLOYMENT.md        Vercel frontend, Render, and Railway setup
 docs/ARCHITECTURE.md      State machine, privacy, recovery, scaling boundaries
 docs/VERIFICATION.md      Executed checks and remaining verification limits
 render.yaml              Single-instance Render service configuration
+vercel.json              Vercel frontend build configuration
 Dockerfile               Optional container build
 ```
 
@@ -128,7 +129,9 @@ Dockerfile               Optional container build
 
 ## Deployment and operational boundaries
 
-Use the included [Render/Railway deployment guide](docs/DEPLOYMENT.md). Both frontend and backend must reach the **same running service**. A static-only deployment cannot host this game.
+Use the included [deployment guide](docs/DEPLOYMENT.md). Render or Railway can run the entire app as one service. To keep the frontend on **Vercel**, deploy the Node server on Render or Railway, set `VITE_GAME_SERVER_URL` in Vercel to that backend's HTTPS origin, and redeploy Vercel. On the backend, set `ALLOWED_ORIGINS` to your Vercel frontend origin. The included Render configuration allows `https://cardchaos.vercel.app`.
+
+The Vercel configuration publishes the frontend only; a running game backend is also required. The URL is embedded at build time. Leave `VITE_GAME_SERVER_URL` blank for local development or when Express serves the frontend itself.
 
 This initial release intentionally stores rooms, credentials, custom cards, and scores in one process’s memory. **Restarting or redeploying the server clears live games.** Use one instance, without autoscaling or multiple Node workers. The repository interface separates storage from rules so durable storage can be added later; multi-instance operation also requires serialized room ownership and shared session/retry storage.
 
@@ -137,6 +140,7 @@ The implementation includes origin checks, rate limits, bounded messages, input 
 ## Troubleshooting
 
 - **Cannot connect:** Start the backend as well as Vite. In production, run `npm start` after building and check `/api/health`.
+- **Vercel shows “Cannot reach the game server”:** Follow the [Vercel setup](docs/DEPLOYMENT.md#vercel-frontend-with-a-render-or-railway-backend). Set `VITE_GAME_SERVER_URL` to the running backend, allow your frontend domain in the backend's `ALLOWED_ORIGINS`, and redeploy. A healthy static homepage does not mean the game server is running.
 - **Room not found after a restart:** Live rooms are in memory. Create a new room.
 - **Start button disabled:** You need three connected players, everyone ready, and no unsaved settings.
 - **Insufficient cards:** Enable more packs or add enough custom responses for ten per player.

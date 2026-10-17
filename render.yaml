@@ -16,7 +16,8 @@ services:
       - key: TRUST_PROXY
         value: '1'
       - key: ALLOWED_ORIGINS
-        sync: false
+        # Add other frontend origins here, separated by commas.
+        value: https://cardchaos.vercel.app
       - key: MAX_PLAYERS
         value: '40'
       - key: MAX_ROOMS
