@@ -1,0 +1,40 @@
+{
+  "name": "The group chat special",
+  "prompts": [
+    { "text": "Our next group trip needs ____.", "pick": 1 },
+    { "text": "We combined ____ with ____ and called it a plan.", "pick": 2 },
+    { "text": "The unofficial group mascot is ____.", "pick": 1 }
+  ],
+  "responses": [
+    "The friend who packs a full-size pillow",
+    "A thirty-page itinerary nobody reads",
+    "An emergency group selfie",
+    "The designated snack accountant",
+    "A playlist with one deeply suspicious song",
+    "A suitcase full of backup outfits",
+    "The group chat's unofficial weather department",
+    "A reservation made under the wrong nickname",
+    "The only person who read the instructions",
+    "A power bank passed around like a sacred relic",
+    "A very enthusiastic wrong turn",
+    "A shared note called 'actual final plan'",
+    "The last person to send their share",
+    "An umbrella that seats the whole friend group",
+    "A 6 a.m. departure nobody believes in",
+    "A suitcase wearing sunglasses",
+    "A road trip fueled entirely by crackers",
+    "A restaurant chosen by a spinning bottle",
+    "The group photographer's tragic camera roll",
+    "A friendship summit at the snack aisle",
+    "An inside joke with its own origin documentary",
+    "A matching shirt with an unfortunate typo",
+    "An overqualified picnic blanket",
+    "A weather forecast based on vibes",
+    "A very complicated coffee order",
+    "The friend who knows a place that closed years ago",
+    "A synchronized complaint about being tired",
+    "A beach ball with a leadership position",
+    "A budget meeting at the dessert counter",
+    "The emergency plan for the emergency plan"
+  ]
+}

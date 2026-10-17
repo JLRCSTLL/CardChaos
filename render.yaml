@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: card-chaos
+    runtime: node
+    numInstances: 1
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: '24'
+      - key: HOST
+        value: 0.0.0.0
+      - key: TRUST_PROXY
+        value: '1'
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: MAX_PLAYERS
+        value: '40'
+      - key: MAX_ROOMS
+        value: '500'
